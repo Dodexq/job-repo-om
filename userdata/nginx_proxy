@@ -1,0 +1,25 @@
+server {
+
+     listen   80;
+
+     root /usr/local/apache2/htdocs/;
+
+     index index.php;
+ 
+     server_name 192.168.56.55;
+ 
+     location / {
+             try_files $uri $uri/ /index.php$args;
+     }
+ 
+     location ~ \.php$ {
+             proxy_set_header X-Real-IP  $remote_addr;
+             proxy_set_header X-Forwarded-For $remote_addr;
+             proxy_set_header Host $host;
+             proxy_pass http://192.168.56.55:8888;
+     }
+ 
+     location ~ /\. {
+             deny all;
+     }
+}

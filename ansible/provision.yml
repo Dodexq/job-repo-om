@@ -1,0 +1,123 @@
+- name: Provision a server
+  hosts: all
+  tasks:
+    
+    - name: Install service on Debian
+      block:
+        - name: Install service (loop)
+          apt:
+            name: "{{item}}"
+            state: present
+          loop:
+            - vim
+            - wget
+            - htop
+            - tmux
+            - nginx
+      when: ansible_os_family == "Debian"      
+
+    - name: Download and Extract php5.6 + apache2
+      block:  
+        - name: Install all packages for make
+          apt: 
+            name: "{{item}}"
+            state: present
+          loop:
+            - build-essential 
+            - libxml2-dev 
+            - libpcre2-dev 
+            - libtool 
+            - autoconf 
+            - libapr1-dev 
+            - libaprutil1-dev 
+            - libffi-dev 
+            - libc6-dev 
+            - gobjc++
+        
+        - name: wget archive php
+          get_url:
+            url: https://www.php.net/distributions/php-5.6.10.tar.gz
+            dest: /home/vagrant/ 
+            owner: vagrant
+            group: vagrant
+
+        - name: wget archive apache
+          get_url:
+            url: https://dlcdn.apache.org/httpd/httpd-2.4.54.tar.gz
+            dest: /home/vagrant/ 
+            owner: vagrant
+            group: vagrant
+
+        - name: Extract archive php5.6
+          unarchive:
+            src: /home/vagrant/php-5.6.10.tar.gz
+            dest: /home/vagrant/
+            owner: vagrant
+            group: vagrant
+
+        - name: Extract archive apache2
+          unarchive:
+            src: /home/vagrant/httpd-2.4.54.tar.gz
+            dest: /home/vagrant/
+            owner: vagrant
+            group: vagrant
+
+    - name: make apache2
+      block:  
+        - name: configure apache2
+          shell:
+            chdir: /home/vagrant/httpd-2.4.54
+            cmd: "./configure --enable-so"
+
+        - name: make apache2
+          shell:
+            chdir: /home/vagrant/httpd-2.4.54
+            cmd: "make"
+
+        - name: make Install apache
+          shell:
+            chdir: /home/vagrant/httpd-2.4.54
+            cmd: "make install"
+
+    - name: make php5.6
+      block:  
+        - name: configure php5.6
+          shell:
+            chdir: /home/vagrant/php-5.6.10
+            cmd: "./configure --with-apxs2=/usr/local/apache2/bin/apxs"
+
+        - name: make php5.6
+          shell:
+            chdir: /home/vagrant/php-5.6.10
+            cmd: "make"
+
+        - name: make Install php5.6
+          shell:
+            chdir: /home/vagrant/php-5.6.10
+            cmd: "make install"
+
+    - name: configure apache2 (prot:8888)+ add php module + index.php
+      block:  
+        - name: Copy configure apache2
+          shell:
+            cmd: "cp -rf /vagrant/userdata/apache_php/* /usr/local/apache2/"
+
+        - name: rm index.html
+          shell:
+            cmd: "rm /usr/local/apache2/htdocs/index.html"
+
+        - name: start apache2
+          shell:
+            cmd: "/usr/local/apache2/bin/apachectl start"
+
+    - name: Add to nginx apache proxy
+      block:
+        - name: Copy default configure
+          copy:
+            src: /vagrant/userdata/nginx_proxy 
+            dest: /etc/nginx/sites-available/default
+
+        - name: Restart nginx
+          systemd:
+            name: nginx.service
+            state: reloaded
