@@ -96,6 +96,10 @@
             chdir: /home/vagrant/php-5.6.10
             cmd: "make install"
 
+        - name: Copy php.ini
+          shell:
+            cmd: "sudo cp /home/vagrant/php-5.6.10/php.ini-development /usr/local/lib/php.ini"
+
     - name: configure apache2 (prot:8888)+ add php module + index.php
       block:  
         - name: Copy configure apache2
@@ -109,6 +113,12 @@
         - name: start apache2
           shell:
             cmd: "/usr/local/apache2/bin/apachectl start"
+
+    - name: cleanup ~/dir
+      block:  
+        - name: rm tmp
+          shell:
+            cmd: "sudo rm -rf httpd-2.4.54.tar.gz php-5.6.10.tar.gz httpd-2.4.54 php-5.6.10"
 
     - name: Add to nginx apache proxy
       block:

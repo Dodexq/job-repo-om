@@ -1,0 +1,51 @@
+- name: Update php to 7.2
+  hosts: all
+  tasks:
+    - name: Download and Extract php7.2
+      block:  
+        - name: wget archive php-7.2
+          get_url:
+            url: https://www.php.net/distributions/php-7.2.34.tar.gz
+            dest: /home/vagrant/ 
+            owner: vagrant
+            group: vagrant
+
+        - name: Extract archive php-7.2
+          unarchive:
+            src: /home/vagrant/php-7.2.34.tar.gz
+            dest: /home/vagrant/
+            owner: vagrant
+            group: vagrant
+
+    - name: make php7.2
+      block:  
+        - name: configure php7.2
+          shell:
+            chdir: /home/vagrant/php-7.2.34
+            cmd: "./configure --with-apxs2=/usr/local/apache2/bin/apxs"
+
+        - name: make php7.2
+          shell:
+            chdir: /home/vagrant/php-7.2.34
+            cmd: "make"
+
+        - name: make Install php7.2
+          shell:
+            chdir: /home/vagrant/php-7.2.34
+            cmd: "make install"
+    
+    - name: cleanup ~/dir
+      block:  
+        - name: rm tmp
+          shell:
+            cmd: "sudo rm -rf php-7.2.34 php-7.2.34.tar.gz"
+
+    - name: configure apache2 update to php7.2
+      block:  
+        - name: Copy configure apache2
+          shell:
+            cmd: "cp -rf /vagrant/userdata/php_update_to_7.2/* /usr/local/apache2/"
+
+        - name: restart apache2
+          shell:
+            cmd: "/usr/local/apache2/bin/apachectl restart"

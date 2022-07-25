@@ -7,6 +7,6 @@
 </head>
 <body>
         <h1><?php echo 'Hello, Officemag! Text by php tag!'; ?></h1>
-        <a href="http://192.168.56.55/test.php">Test PHP Version</a>
+        <a href="/test.php">Test PHP Version</a>
 </body>
 </html>
