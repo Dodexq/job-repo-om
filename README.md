@@ -2,7 +2,7 @@
 
 Vagrantfile: `dodexq/debian9-job` Только с VPN.
 
-Без VPN скачать по <a href="https://disk.yandex.ru/d/OnaRLd4WdiFFnA" target="_blank">ссылке</a>. Для добавления Vagrant Box: `vagrant box add --name "dodexq/debian9-job" --force ./Virtualbox-debian9.box`
+Без VPN скачать по <a href="https://disk.yandex.ru/d/QY-UAdUlNmIkyw" target="_blank">ссылке</a>. Для добавления Vagrant Box: `vagrant box add --name "dodexq/debian9-job" --force ./Virtualbox-debian9.box`
 
 
 `./Packer/` исходник заготовки для создания своего vagrant box, где `("disk_size": 10240)` Vagrantfile: `dodexq/debian9-job`
